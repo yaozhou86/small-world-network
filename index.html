@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="utf-8">
+	<script src="d3.js" type="text/JavaScript"></script>
+	<style>
+
+		.node {
+			stroke: #fff;
+			stroke-width: 1.5px;
+		}
+
+		.link {
+			stroke: #999;
+			stroke-opacity: .6;
+		}
+
+	</style>
+</head>
+
+<body>
+	<div class="input container">
+		<label>N :</label>
+		<input id="N" name="N" placeholder="Number of nodes" type="number">
+		<label>K :</label>
+		<input id="K" name="K" placeholder="Average Degree" type="number">
+		<label>&beta; :</label>
+		<input id="Beta" name="Beta" placeholder="0 < &beta; < 1" type="number">
+		<input onclick="onGenerate()" type="button" value="Generate">
+		<p>Click Generate button to create a random small-world network using <A HREF="https://en.wikipedia.org/wiki/Watts_and_Strogatz_model" target="_blank">Watts and Strogatz model</A>.</p>
+	</div>
+	<script>
+		var width = 960,
+		height = 500;
+
+		var color = d3.scale.category20();
+
+		var svg = d3.select("body").append("svg")
+		.attr("width", width)
+		.attr("height", height);
+
+		var force = d3.layout.force()
+			.charge(-120)
+			.linkDistance(30)
+			.size([width, height]);
+
+		function clearGraph()
+		{
+			force.stop();
+			force.nodes([]);
+			force.links([]);
+
+			svg.selectAll("*").remove();
+		}
+		
+		function rederGraph(graph)
+		{
+			force.nodes(graph.nodes)
+			.links(graph.links)
+			.start();
+
+			var link = svg.selectAll(".link")
+			.data(graph.links)
+			.enter().append("line")
+			.attr("class", "link")
+			.style("stroke-width", 1);
+
+			var node = svg.selectAll(".node")
+			.data(graph.nodes)
+			.enter().append("circle")
+			.attr("class", "node")
+			.attr("r", 5)
+			.style("fill", function(d) { return color(d.group); })
+			.call(force.drag);
+
+			node.append("title")
+			.text(function(d) { return d.name; });
+
+			force.on("tick", function() {
+				link.attr("x1", function(d) { return d.source.x; })
+				.attr("y1", function(d) { return d.source.y; })
+				.attr("x2", function(d) { return d.target.x; })
+				.attr("y2", function(d) { return d.target.y; });
+
+				node.attr("cx", function(d) { return d.x; })
+				.attr("cy", function(d) { return d.y; });
+			});
+		}
+
+		function generateGraph(N, K, Beta)
+		{
+			// 1. Create N nodes
+			var nodes = [];
+			for (var i = 0; i < N; i++) 
+			{
+				nodes.push({name:i, group:1});
+			}
+
+			// 2. Construct a ring lattice with degree K
+			var links = [];
+			for (var i = 0; i < N; i++) 
+			{
+				// Each node has a degree of K (K links)
+				// It links to K / 2 neighbors on each side
+
+				for (var j = 1; j <= K / 2; j++) 
+				{
+					// For each node, create links for neighbors on the right side		
+					links.push(JSON.stringify({source:i, target:(i + j) % N}));
+				}
+			}
+
+			// 3. Randomly re-wire links
+			var linkSet = d3.set(links);
+			for (var i = 0; i < links.length; i++) 
+			{
+				// Only re-wire if random number is less than Beta
+				var link = JSON.parse(links[i]);
+				if (link.source < link.target) 
+				{
+					if(Math.random() < Beta)
+					{
+						var newTarget;
+						var newLink;
+						var newLinkReverse;
+						do
+						{
+							// Randomly choose another node as target
+							newTarget = Math.floor(Math.random() * N);
+							newLink = JSON.stringify({source:link.source, target:newTarget});
+							newLinkReverse = JSON.stringify({source:newTarget, target:link.source});
+
+						}while(newTarget == link.target || newTarget == link.source 
+							|| linkSet.has(newLink) || linkSet.has(newLinkReverse));
+
+						// Update linkSet with new link
+						linkSet.remove(link);
+						linkSet.add(newLink);
+						links[i] = newLink;
+					}
+				}
+			}
+
+			links = links.map(function(l) {return JSON.parse(l);});
+
+			return {nodes:nodes, links:links}
+		}
+
+		function validateInput(N, K, Beta)
+		{
+			var errorMsg = ""; 
+
+			if(N <= 0) errorMsg += "N must be positive.\n";
+			if(K <= 0 || K % 2 == 1) errorMsg += "K must be positive and even.\n";
+			if(N < K / 2) errorMsg += "N must be greater than K / 2.\n";
+			if(Beta <= 0 || Beta > 1) errorMsg += "0 < &beta; <= 1."
+			if(errorMsg.length != 0) alert(errorMsg);
+
+			// return success if there is no error message
+			return errorMsg.length == 0;
+		}
+
+		function onGenerate()
+		{
+			var N = Number(document.getElementById("N").value);
+			var K = Number(document.getElementById("K").value);
+			var Beta = Number(document.getElementById("Beta").value);
+
+			if(validateInput(N, K, Beta))
+			{
+				clearGraph();
+
+				var graph = generateGraph(N, K, Beta);
+
+				rederGraph(graph);
+			}
+		}
+	</script>
+</body>

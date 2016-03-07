@@ -2,177 +2,362 @@
 <head>
 	<meta charset="utf-8">
 	<script src="d3.js" type="text/JavaScript"></script>
-	<style>
-
-		.node {
-			stroke: #fff;
-			stroke-width: 1.5px;
-		}
-
-		.link {
-			stroke: #999;
-			stroke-opacity: .6;
-		}
-
-	</style>
+	<link rel="stylesheet" type="text/css" href="mystyle.css">
 </head>
 
 <body>
-	<div class="input container">
-		<label>N :</label>
-		<input id="N" name="N" placeholder="Number of nodes" type="number">
-		<label>K :</label>
-		<input id="K" name="K" placeholder="Average Degree" type="number">
-		<label>&beta; :</label>
-		<input id="Beta" name="Beta" placeholder="0 < &beta; < 1" type="number">
-		<input onclick="onGenerate()" type="button" value="Generate">
-		<p>Click Generate button to create a random small-world network using <A HREF="https://en.wikipedia.org/wiki/Watts_and_Strogatz_model" target="_blank">Watts and Strogatz model</A>.</p>
+	<div class="page-wrapper">
+		<div class= "header">
+			<h2 style="text-align:center">A SMALL WORLD NETWORK EXPLORABLE EXPLANAITON</h2>
+		</div>
+	
+	<div class="container">
+		<div class="content">
+			<p> The well-known theory of <a href= "https://en.wikipedia.org/wiki/Six_degrees_of_separation"><b>six degrees of separation</b></a> told us that any two individuals in the planet can be connected through a chain of acquaintances with less than five intermediaries. Is it true or just a pop culture myth? Or, in other words, mathmatically can we simulate such a network that any two random <i>nodes</i> within it can be linked through a <i>path</i> with less than five <i>edges</i>?</P>
+		</div>
+	
+		<div class="content">
+			<div class="textCol"><p>We consider constructing a network in which every distinct pair of nodes is connected by an unique edge. This type of network is known as a <i>complete graph</i>. A complete graph can ensure a shortest path length (=1) between any two nodes, however, such a network doesn't represent a real world social network.<p> 
+			<p>Click <input  onclick="completeGraph()" type="button" value="Generate"> to generate a complete graph.</p></div>
+			<div class="svgCol"><svg id="completeGraph"></div>
+		</div>
+
+	
+		<div class="content">
+			<div class="textCol"><p>A scenario that is closer to the real social network is we just know our neighbors and our neighbors know other neighbor. In other words, we are clustered in the network. This can be simulated by having a network in which the nodes are only connected with their nearest two neighbors on each side. This type of network is known as <i>lattice graph</i>. In a lattice, the number of egdes are greatly reduced but the path between any two nodes picked at random could be long.</p>
+			<p>Click <input  onclick="latticeGraph()" type="button" value="Generate"> to generate lattice graph.</p></div>
+			<div class="svgCol"><svg id="latticeGraph"></svg></div>
+		</div>
+
+		<div class="content">
+			<div class="textCol"><p> However, with the lattice described above set up, if we reconnect or rewire a small number of connections randomly, we can have the path length drop rapidly but remain a high level of clustering. This type of network has represented the features of the small world network: high clustering coefficient and short average path.
+			<p>Click <input  onclick="rewireLattice()" type="button" value="Generate"> to rewire in the lattice graph.</p></div>
+			<div class="svgCol"><svg id="rewireLattice"></svg></div>
+		</div>
+	
+		<div class="content" style="margin-top:20px">
+			<p>To randomly generate a small world network, Duncan J. Watts and Steven Strogatz proposed the <A HREF="https://en.wikipedia.org/wiki/Watts_and_Strogatz_model" target="_blank">Watts and Strogatz model</A> which, with a probability &beta;, rewires a regular ring lattice with N nodes each connected to K neighbors. </p>	
+			<p>Specify number of Nodes and Average degree. Click Generate button to create a random small-world network using.</p> 
+
+			<div>
+				<label>N :</label>
+				<input id="N" name="N" placeholder="Number of nodes" type="number">
+				<label>K :</label>
+				<input id="K" name="K" placeholder="Average Degree" type="number">
+				<label>&beta; :</label>
+				<input id="Beta" name="Beta" placeholder="0 < &beta; < 1" type="number">
+				<input onclick="onGenerate()" type="button" value="Generate">
+			</div>
+			<div class="smallWorld"><svg id="smallworld"  width="100%" height="500"></svg></div>
+		</div>
 	</div>
-	<script>
-		var width = 960,
-		height = 500;
+		
+		<script type="text/javascript">		
 
-		var color = d3.scale.category20();
-
-		var svg = d3.select("body").append("svg")
-		.attr("width", width)
-		.attr("height", height);
-
-		var force = d3.layout.force()
-			.charge(-120)
-			.linkDistance(30)
-			.size([width, height]);
-
-		function clearGraph()
+		var color = d3.scale.category20();		
+		
+		function completeGraph()
 		{
-			force.stop();
-			force.nodes([]);
-			force.links([]);
+			var completeGraph = new Object();
+			var nodes=[
+			{name:"a", group:"1"},
+			{name:"b", group:"1"},
+			{name:"c", group:"1"}, 
+			{name:"d", group:"1"},
+			{name:"e", group:"1"},
+			{name:"f", group:"1"},
+			{name:"g", group:"1"},
+			{name:"h", group:"1"},
+			{name:"i", group:"1"},
+			{name:"j", group:"1"},
+			{name:"k", group:"1"}];
 
-			svg.selectAll("*").remove();
+		 	completeGraph.nodes = nodes;
+
+			completeGraph.links =[
+				{source:0, target:1},
+				{source:0, target:2},
+				{source:0, target:3},
+				{source:0, target:4},
+				{source:0, target:5},
+				{source:0, target:6},
+				{source:0, target:7},
+				{source:0, target:8},
+				{source:0, target:9},
+				{source:0, target:10},
+				{source:1, target:2},
+				{source:1, target:3},
+				{source:1, target:4},
+				{source:1, target:5},
+				{source:1, target:6},
+				{source:1, target:7},
+				{source:1, target:8},
+				{source:1, target:9},
+				{source:1, target:10},
+				{source:2, target:3},
+				{source:2, target:4},
+				{source:2, target:5},
+				{source:2, target:6},
+				{source:2, target:7},
+				{source:2, target:8},
+				{source:2, target:9},
+				{source:2, target:10},
+				{source:3, target:4},
+				{source:3, target:5},
+				{source:3, target:6},
+				{source:3, target:7},
+				{source:3, target:8},
+				{source:3, target:9},
+				{source:3, target:10},
+				{source:4, target:5},
+				{source:4, target:6},
+				{source:4, target:7},
+				{source:4, target:8},
+				{source:4, target:9},
+				{source:4, target:10},
+				{source:5, target:6},
+				{source:5, target:7},
+				{source:5, target:8},
+				{source:5, target:9},
+				{source:5, target:10},
+				{source:6, target:7},
+				{source:6, target:8},
+				{source:6, target:9},
+				{source:6, target:10},
+				{source:7, target:8},
+				{source:7, target:9},
+				{source:7, target:10},
+				{source:8, target:9},
+				{source:8, target:10},
+				{source:9, target:10}]
+
+			renderGraph(completeGraph,"completeGraph");
+
+		}
+
+		function latticeGraph()
+		{
+			var latticeGraph = new Object();
+			var nodes=[
+			{name:"a", group:"1"},
+			{name:"b", group:"1"},
+			{name:"c", group:"1"}, 
+			{name:"d", group:"1"},
+			{name:"e", group:"1"},
+			{name:"f", group:"1"},
+			{name:"g", group:"1"},
+			{name:"h", group:"1"},
+			{name:"i", group:"1"},
+			{name:"j", group:"1"},
+			{name:"k", group:"1"}];
+			latticeGraph.nodes = nodes;
+				
+			latticeGraph.links = [
+				{source:0, target:1},
+				{source:0, target:2},
+				{source:1, target:2},
+				{source:1, target:3},
+				{source:2, target:3},
+				{source:2, target:4},	
+				{source:3, target:4},
+				{source:3, target:5},
+				{source:4, target:5},
+				{source:4, target:6},
+				{source:5, target:6},
+				{source:5, target:7},
+				{source:6, target:7},
+				{source:6, target:8},
+				{source:7, target:8},
+				{source:7, target:9},								
+				{source:8, target:9},
+				{source:8, target:10},
+				{source:9, target:10},
+				{source:9, target:0},
+				{source:10, target:0},
+				{source:10, target:1}];
+
+				renderGraph(latticeGraph, "latticeGraph");
 		}
 		
-		function rederGraph(graph)
+
+		function rewireLattice()
 		{
-			force.nodes(graph.nodes)
-			.links(graph.links)
-			.start();
-
-			var link = svg.selectAll(".link")
-			.data(graph.links)
-			.enter().append("line")
-			.attr("class", "link")
-			.style("stroke-width", 1);
-
-			var node = svg.selectAll(".node")
-			.data(graph.nodes)
-			.enter().append("circle")
-			.attr("class", "node")
-			.attr("r", 5)
-			.style("fill", function(d) { return color(d.group); })
-			.call(force.drag);
-
-			node.append("title")
-			.text(function(d) { return d.name; });
-
-			force.on("tick", function() {
-				link.attr("x1", function(d) { return d.source.x; })
-				.attr("y1", function(d) { return d.source.y; })
-				.attr("x2", function(d) { return d.target.x; })
-				.attr("y2", function(d) { return d.target.y; });
-
-				node.attr("cx", function(d) { return d.x; })
-				.attr("cy", function(d) { return d.y; });
-			});
+			var rewireLattice = new Object();
+			var nodes=[
+			{name:"a", group:"1"},
+			{name:"b", group:"1"},
+			{name:"c", group:"1"}, 
+			{name:"d", group:"1"},
+			{name:"e", group:"1"},
+			{name:"f", group:"1"},
+			{name:"g", group:"1"},
+			{name:"h", group:"1"},
+			{name:"i", group:"1"},
+			{name:"j", group:"1"},
+			{name:"k", group:"1"}];
+			rewireLattice.nodes = nodes;
+				
+			rewireLattice.links = [
+				{source:0, target:1},
+				{source:0, target:2},
+				{source:1, target:2},
+				{source:1, target:5},
+				{source:2, target:3},
+				{source:2, target:4},	
+				{source:3, target:10},
+				{source:3, target:10},
+				{source:4, target:5},
+				{source:4, target:6},
+				{source:5, target:6},
+				{source:5, target:9},
+				{source:6, target:9},
+				{source:6, target:8},
+				{source:7, target:8},
+				{source:7, target:9},
+				{source:8, target:9},
+				{source:8, target:9},
+				{source:9, target:9},
+				{source:9, target:0},
+				{source:10, target:0},
+				{source:10, target:1}];
+			
+			renderGraph(rewireLattice, "rewireLattice");
 		}
 
-		function generateGraph(N, K, Beta)
-		{
-			// 1. Create N nodes
-			var nodes = [];
-			for (var i = 0; i < N; i++) 
-			{
-				nodes.push({name:i, group:1});
-			}
+	 	function renderGraph(graph, svgId)
+	 	{
 
-			// 2. Construct a ring lattice with degree K
-			var links = [];
-			for (var i = 0; i < N; i++) 
-			{
-				// Each node has a degree of K (K links)
-				// It links to K / 2 neighbors on each side
+	 		var rec = document.getElementById(svgId).getBoundingClientRect();
+	 		d3.select("#"+svgId).selectAll("*").remove();
+	 		var force = d3.layout.force()
+	 		.charge(-120)
+	 		.linkDistance(30)
+	 		.size([rec.width, rec.height]);
 
-				for (var j = 1; j <= K / 2; j++) 
-				{
-					// For each node, create links for neighbors on the right side		
-					links.push(JSON.stringify({source:i, target:(i + j) % N}));
-				}
-			}
 
-			// 3. Randomly re-wire links
+			force.nodes(graph.nodes)
+	 		.links(graph.links)
+	 		.start();
+
+	 		var link = d3.select("#"+svgId).selectAll(".link")
+	 		.data(graph.links)
+	 		.enter().append("line")
+	 		.attr("class", "link")
+	 		.style("stroke-width", 1);
+ 		
+			var node = d3.select("#"+svgId).selectAll(".node")
+	 		.data(graph.nodes)
+	 		.enter().append("circle")
+	 		.attr("class", "node")
+			.attr("r", 5)
+	 		.style("fill", function(d) { return color(d.group); })
+	 		.call(force.drag);
+
+	 		node.append("title")
+	 		.text(function(d) { return d.name; });
+
+	 		force.on("tick", function() {
+	 			link.attr("x1", function(d) { return d.source.x; })
+	 			.attr("y1", function(d) { return d.source.y; })
+	 			.attr("x2", function(d) { return d.target.x; })
+	 			.attr("y2", function(d) { return d.target.y; });
+
+	 			node.attr("cx", function(d) { return d.x; })
+	 			.attr("cy", function(d) { return d.y; });
+	 		});
+	 	}
+
+	 	function generateGraph(N, K, Beta)
+	 	{
+	 		// 1. Create N nodes
+	 		var nodes = [];
+	 		for (var i = 0; i < N; i++) 
+	 		{
+	 			nodes.push({name:i, group:1});
+	 		}
+
+	 		// 2. Construct a ring lattice with degree K
+	 		var links = [];
+	 		for (var i = 0; i < N; i++) 
+	 		{
+	 			// Each node has a degree of K (K links)
+	 			// It links to K / 2 neighbors on each side
+
+	 			for (var j = 1; j <= K / 2; j++) 
+	 			{
+	 				// For each node, create links for neighbors on the right side		
+	 				links.push(JSON.stringify({source:i, target:(i + j) % N}));
+	 			}
+	 		}
+
+	 		// 3. Randomly re-wire links
 			var linkSet = d3.set(links);
-			for (var i = 0; i < links.length; i++) 
+	 		for (var i = 0; i < links.length; i++) 
 			{
 				// Only re-wire if random number is less than Beta
-				var link = JSON.parse(links[i]);
-				if (link.source < link.target) 
+	 			var link = JSON.parse(links[i]);
+	 			if (link.source < link.target) 
 				{
-					if(Math.random() < Beta)
-					{
-						var newTarget;
-						var newLink;
-						var newLinkReverse;
-						do
-						{
-							// Randomly choose another node as target
-							newTarget = Math.floor(Math.random() * N);
-							newLink = JSON.stringify({source:link.source, target:newTarget});
-							newLinkReverse = JSON.stringify({source:newTarget, target:link.source});
+	 				if(Math.random() < Beta)
+	 				{
+	 					var newTarget;
+	 					var newLink;
+	 					var newLinkReverse;
+	 					do
+	 					{
+	 						// Randomly choose another node as target
+	 						newTarget = Math.floor(Math.random() * N);
+	 						newLink = JSON.stringify({source:link.source, target:newTarget});
+	 						newLinkReverse = JSON.stringify({source:newTarget, target:link.source});
 
-						}while(newTarget == link.target || newTarget == link.source 
-							|| linkSet.has(newLink) || linkSet.has(newLinkReverse));
+	 					}while(newTarget == link.target || newTarget == link.source 
+	 						|| linkSet.has(newLink) || linkSet.has(newLinkReverse));
 
-						// Update linkSet with new link
-						linkSet.remove(link);
-						linkSet.add(newLink);
+	 					// Update linkSet with new link
+	 					linkSet.remove(link);
+	 					linkSet.add(newLink);
 						links[i] = newLink;
-					}
-				}
-			}
+	 				}
+	 			}
+	 		}
 
-			links = links.map(function(l) {return JSON.parse(l);});
+	 		links = links.map(function(l) {return JSON.parse(l);});
 
-			return {nodes:nodes, links:links}
-		}
+	 		return {nodes:nodes, links:links}
+	 	}
 
-		function validateInput(N, K, Beta)
-		{
-			var errorMsg = ""; 
+	 	function validateInput(N, K, Beta)
+	 	{
+	 		var errorMsg = ""; 
 
-			if(N <= 0) errorMsg += "N must be positive.\n";
-			if(K <= 0 || K % 2 == 1) errorMsg += "K must be positive and even.\n";
-			if(N < K / 2) errorMsg += "N must be greater than K / 2.\n";
-			if(Beta <= 0 || Beta > 1) errorMsg += "0 < &beta; <= 1."
-			if(errorMsg.length != 0) alert(errorMsg);
+	 		if(N <= 0) errorMsg += "N must be positive.\n";
+	 		if(K <= 0 || K % 2 == 1) errorMsg += "K must be positive and even.\n";
+	 		if(N < K / 2) errorMsg += "N must be greater than K / 2.\n";
+	 		if(Beta <= 0 || Beta > 1) errorMsg += "0 < &beta; <= 1."
+	 		if(errorMsg.length != 0) alert(errorMsg);
 
-			// return success if there is no error message
-			return errorMsg.length == 0;
-		}
+	 		// return success if there is no error message
+	 		return errorMsg.length == 0;
+	 	}
 
-		function onGenerate()
-		{
-			var N = Number(document.getElementById("N").value);
-			var K = Number(document.getElementById("K").value);
-			var Beta = Number(document.getElementById("Beta").value);
+	 	function onGenerate()
+	 	{
+	 		var N = Number(document.getElementById("N").value);
+	 		var K = Number(document.getElementById("K").value);
+	 		var Beta = Number(document.getElementById("Beta").value);
 
-			if(validateInput(N, K, Beta))
-			{
-				clearGraph();
+	 		if(validateInput(N, K, Beta))
+	 		{
+	 			/*clearGraph();*/
 
-				var graph = generateGraph(N, K, Beta);
+	 			var graph = generateGraph(N, K, Beta);
 
-				rederGraph(graph);
-			}
-		}
-	</script>
+	 			renderGraph(graph, "smallworld");
+	 		}
+
+
+	 	}
+
+	 </script>
+	 </div>
 </body>

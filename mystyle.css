@@ -1,0 +1,65 @@
+body {
+ 	font-family: Arial, Helvetica, sans-serif;
+ 	font-size: 13px;
+}
+
+p{
+	text-align: justify; 
+}
+
+.page-wrapper { 
+	padding: 0 90px 0 90px;  
+	margin: 0 auto; 
+	position: relative;
+	width: 60%;
+	}
+
+.header {
+	height: 50px;
+	margin-bottom: 20px;
+	padding: 30px;
+	background: rgba(54,139,179,0.75);
+}
+
+.node {
+		stroke: #fff;
+		stroke-width: 1.5px;
+	}
+
+.link {
+	stroke: #999;
+	stroke-opacity: .6;
+}
+
+.container{
+	float: left;
+	padding: 20px;
+	border: 1px solid #ccc;
+	background: rgba(54,150,179,0.15);
+}
+
+.content{
+	float: left;
+}
+
+.textCol{
+	width: 55%;
+	float: left;
+	padding: 20px;
+}
+
+.svgCol{
+	width: 36%;
+	float: left;
+	border: 1px solid #ccc;
+	margin-top: 30px;
+
+}
+
+.smallWorld{
+	float: left;
+	width: 100%; 
+	height: 500px;
+	margin: 10px;
+	border: 1px solid #ccc;
+}

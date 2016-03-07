@@ -58,7 +58,6 @@
 		
 		function completeGraph()
 		{
-			var completeGraph = new Object();
 			var nodes=[
 			{name:"a", group:"1"},
 			{name:"b", group:"1"},
@@ -72,9 +71,7 @@
 			{name:"j", group:"1"},
 			{name:"k", group:"1"}];
 
-		 	completeGraph.nodes = nodes;
-
-			completeGraph.links =[
+			var links =[
 				{source:0, target:1},
 				{source:0, target:2},
 				{source:0, target:3},
@@ -131,13 +128,12 @@
 				{source:8, target:10},
 				{source:9, target:10}]
 
+			var completeGraph = new Graph(nodes, links);
 			renderGraph(completeGraph,"completeGraph");
-
 		}
 
 		function latticeGraph()
 		{
-			var latticeGraph = new Object();
 			var nodes=[
 			{name:"a", group:"1"},
 			{name:"b", group:"1"},
@@ -150,9 +146,8 @@
 			{name:"i", group:"1"},
 			{name:"j", group:"1"},
 			{name:"k", group:"1"}];
-			latticeGraph.nodes = nodes;
 				
-			latticeGraph.links = [
+			var links = [
 				{source:0, target:1},
 				{source:0, target:2},
 				{source:1, target:2},
@@ -176,13 +171,13 @@
 				{source:10, target:0},
 				{source:10, target:1}];
 
-				renderGraph(latticeGraph, "latticeGraph");
+			var latticeGraph = new Graph(nodes, links)
+			renderGraph(latticeGraph, "latticeGraph");
 		}
 		
 
 		function rewireLattice()
 		{
-			var rewireLattice = new Object();
 			var nodes=[
 			{name:"a", group:"1"},
 			{name:"b", group:"1"},
@@ -195,9 +190,8 @@
 			{name:"i", group:"1"},
 			{name:"j", group:"1"},
 			{name:"k", group:"1"}];
-			rewireLattice.nodes = nodes;
 				
-			rewireLattice.links = [
+			var links = [
 				{source:0, target:1},
 				{source:0, target:2},
 				{source:1, target:2},
@@ -221,19 +215,18 @@
 				{source:10, target:0},
 				{source:10, target:1}];
 			
+			var rewireLattice = new Graph(nodes, links);
 			renderGraph(rewireLattice, "rewireLattice");
 		}
 
 	 	function renderGraph(graph, svgId)
 	 	{
-
 	 		var rec = document.getElementById(svgId).getBoundingClientRect();
 	 		d3.select("#"+svgId).selectAll("*").remove();
 	 		var force = d3.layout.force()
 	 		.charge(-120)
 	 		.linkDistance(30)
 	 		.size([rec.width, rec.height]);
-
 
 			force.nodes(graph.nodes)
 	 		.links(graph.links)
@@ -249,8 +242,9 @@
 	 		.data(graph.nodes)
 	 		.enter().append("circle")
 	 		.attr("class", "node")
-			.attr("r", 5)
+			.attr("r", function(d) { return d.hasOwnProperty("degree") ? d.degree : 5; })
 	 		.style("fill", function(d) { return color(d.group); })
+			.on("click", function(d) {graph.click(this, d, svgId); })
 	 		.call(force.drag);
 
 	 		node.append("title")
@@ -267,97 +261,201 @@
 	 		});
 	 	}
 
+		function Graph(nodes, links) {
+			this.nodes = nodes;
+			this.links = links;
+			
+			this.pathStart = null;
+			this.pathEnd = null;
+			this.path = [];
+			
+			this.click = function (nodeCircle, node, svgId)
+			{
+				if(this.path.length == 0)
+				{
+					d3.select(nodeCircle).style("fill",  color(0));
+					
+					if(this.pathStart == null)
+					{
+						this.pathStart = node;
+					}
+					else if(this.pathEnd == null)
+					{
+						this.pathEnd = node;
+						this.shortestPath();
+						
+						var self = this;
+						
+						d3.select('#'+svgId).selectAll(".link")
+						.filter(function(d){return self.path.indexOf(d) != -1;})
+						.style("stroke", "#FF8C00");
+					}
+				}
+				else
+				{
+					this.pathStart = null;
+					this.pathEnd = null;
+					this.path = [];
+					
+					d3.select('#'+svgId).selectAll(".node").style("fill", color(1));
+					d3.select('#'+svgId).selectAll(".link").style("stroke", "#999");
+				}
+			};
+			
+			this.shortestPath = function ()
+			{	
+				this.nodes.forEach(function(n){
+					n.distance = -1;
+					n.parent = null;
+				});
+				
+				this.pathStart.distance = 0;
+				
+				var queue = [];
+				queue.push(this.pathStart);
+				
+				while(queue.length > 0)
+				{
+					var current = queue.shift();
+					
+					var links = this.links.filter(function(l){return l.source == current});
+					var adjacentNodes = links.map(function(l){return l.target;});
+					links = this.links.filter(function(l){return l.target == current});
+					adjacentNodes = adjacentNodes.concat(links.map(function(l){return l.source;}));
+					
+					for(var i = 0; i < adjacentNodes.length; i++)
+					{
+						if(adjacentNodes[i].distance == -1)
+						{
+							adjacentNodes[i].distance = current.distance + 1;
+							adjacentNodes[i].parent = current;
+							queue.push(adjacentNodes[i]);
+						}
+					}
+				}
+				
+				var current = this.pathEnd;
+				var parent = current.parent;
+				
+				while(parent != null)
+				{
+					var link = this.links.find(function(l){return l.target == current && l.source == parent;});
+					if(link == null) 
+						link = this.links.find(function(l){return l.source == current && l.target == parent;});
+					this.path.push(link);
+					
+					current = parent;
+					parent = current.parent;
+				}
+			}
+		}
+		
 	 	function generateGraph(N, K, Beta)
-	 	{
-	 		// 1. Create N nodes
-	 		var nodes = [];
-	 		for (var i = 0; i < N; i++) 
-	 		{
-	 			nodes.push({name:i, group:1});
-	 		}
+		{
+			// 1. Create N nodes
+			var nodes = [];
+			for (var i = 0; i < N; i++) 
+			{
+				nodes.push({name:i, degree:K, group:1});
+			}
 
-	 		// 2. Construct a ring lattice with degree K
-	 		var links = [];
-	 		for (var i = 0; i < N; i++) 
-	 		{
-	 			// Each node has a degree of K (K links)
-	 			// It links to K / 2 neighbors on each side
+			// 2. Construct a ring lattice with degree K
+			var links = [];
+			for (var i = 0; i < N; i++) 
+			{
+				// Each node has a degree of K (K links)
+				// It links to K / 2 neighbors on each side
 
-	 			for (var j = 1; j <= K / 2; j++) 
-	 			{
-	 				// For each node, create links for neighbors on the right side		
-	 				links.push(JSON.stringify({source:i, target:(i + j) % N}));
-	 			}
-	 		}
+				for (var j = 1; j <= K / 2; j++) 
+				{
+					// For each node, create links for neighbors on the right side		
+					links.push(JSON.stringify({source:i, target:(i + j) % N}));
+				}
+			}
 
-	 		// 3. Randomly re-wire links
+			// 3. Randomly re-wire links
 			var linkSet = d3.set(links);
-	 		for (var i = 0; i < links.length; i++) 
+			for (var i = 0; i < links.length; i++) 
 			{
 				// Only re-wire if random number is less than Beta
-	 			var link = JSON.parse(links[i]);
-	 			if (link.source < link.target) 
+				var link = JSON.parse(links[i]);
+				if (link.source < link.target) 
 				{
-	 				if(Math.random() < Beta)
-	 				{
-	 					var newTarget;
-	 					var newLink;
-	 					var newLinkReverse;
-	 					do
-	 					{
-	 						// Randomly choose another node as target
-	 						newTarget = Math.floor(Math.random() * N);
-	 						newLink = JSON.stringify({source:link.source, target:newTarget});
-	 						newLinkReverse = JSON.stringify({source:newTarget, target:link.source});
+					if(Math.random() < Beta)
+					{
+						var newTarget;
+						var newLink;
+						var newLinkReverse;
+						do
+						{
+							// Randomly choose another node as target
+							newTarget = Math.floor(Math.random() * N);
+							newLink = JSON.stringify({source:link.source, target:newTarget});
+							newLinkReverse = JSON.stringify({source:newTarget, target:link.source});
 
-	 					}while(newTarget == link.target || newTarget == link.source 
-	 						|| linkSet.has(newLink) || linkSet.has(newLinkReverse));
+						}while(newTarget == link.target || newTarget == link.source 
+							|| linkSet.has(newLink) || linkSet.has(newLinkReverse));
 
-	 					// Update linkSet with new link
-	 					linkSet.remove(link);
-	 					linkSet.add(newLink);
+						// Update linkSet with new link
+						linkSet.remove(link);
+						linkSet.add(newLink);
 						links[i] = newLink;
-	 				}
-	 			}
-	 		}
+						
+						// Update degree stored in nodes
+						nodes[link.target].degree--;
+						nodes[newTarget].degree++;
+					}
+				}
+			}
 
-	 		links = links.map(function(l) {return JSON.parse(l);});
+			links = links.map(function(l) {return JSON.parse(l);});
 
-	 		return {nodes:nodes, links:links}
-	 	}
+			return new Graph(nodes, links);
+		}
+		
+		function assignColor(graph, K)
+		{
+			// First pass determine the color of nodes whose degree is larger than K
+			var hubNodes = graph.nodes.filter(function(n) {return n.degree > K;});
+		
+			// Sort array in descending degree
+			hubNodes.sort(function(a, b){return b.degree - a.degree});
+			
+			for(var i = 0; i < hubNodes.length; ++i)
+			{
+				graph.nodes[hubNodes[i].name].group = i + 1;
+			}
+		}
 
-	 	function validateInput(N, K, Beta)
-	 	{
-	 		var errorMsg = ""; 
+		function validateInput(N, K, Beta)
+		{
+			var errorMsg = ""; 
 
-	 		if(N <= 0) errorMsg += "N must be positive.\n";
-	 		if(K <= 0 || K % 2 == 1) errorMsg += "K must be positive and even.\n";
-	 		if(N < K / 2) errorMsg += "N must be greater than K / 2.\n";
-	 		if(Beta <= 0 || Beta > 1) errorMsg += "0 < &beta; <= 1."
-	 		if(errorMsg.length != 0) alert(errorMsg);
+			if(N <= 0) errorMsg += "N must be positive.\n";
+			if(K <= 0 || K % 2 == 1) errorMsg += "K must be positive and even.\n";
+			if(N < K / 2) errorMsg += "N must be greater than K / 2.\n";
+			if(Beta <= 0 || Beta > 1) errorMsg += "0 < &beta; <= 1."
+			if(errorMsg.length != 0) alert(errorMsg);
 
-	 		// return success if there is no error message
-	 		return errorMsg.length == 0;
-	 	}
+			// return success if there is no error message
+			return errorMsg.length == 0;
+		}
 
-	 	function onGenerate()
-	 	{
-	 		var N = Number(document.getElementById("N").value);
-	 		var K = Number(document.getElementById("K").value);
-	 		var Beta = Number(document.getElementById("Beta").value);
+		function onGenerate()
+		{
+			var N = Number(document.getElementById("N").value);
+			var K = Number(document.getElementById("K").value);
+			var Beta = Number(document.getElementById("Beta").value);
 
-	 		if(validateInput(N, K, Beta))
-	 		{
-	 			/*clearGraph();*/
-
-	 			var graph = generateGraph(N, K, Beta);
-
-	 			renderGraph(graph, "smallworld");
-	 		}
-
-
-	 	}
-
+			if(validateInput(N, K, Beta))
+			{
+				var graph = generateGraph(N, K, Beta);
+				
+				//assignColor(graph, K);
+				
+				renderGraph(graph, "smallworld");
+			}
+		}
 	 </script>
 	 </div>
 </body>

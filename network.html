@@ -13,18 +13,18 @@
 	
 	<div class="container">
 		<div class="content">
-			<p> The well-known theory of <a href= "https://en.wikipedia.org/wiki/Six_degrees_of_separation"><b>six degrees of separation</b></a> told us that any two individuals in the planet can be connected through a chain of acquaintances with less than five intermediaries. Is it true or just a pop culture myth? Or, in other words, mathmatically can we simulate such a network that any two random <i>nodes</i> within it can be linked through a <i>path</i> with less than five <i>edges</i>?</P>
+			<p> The well-known theory of <a href= "https://en.wikipedia.org/wiki/Six_degrees_of_separation"><b>six degrees of separation</b></a> told us that any two individuals in the planet can be connected through a chain of acquaintances with less than five intermediaries. Is it true or just a pop culture myth? Or, in other words, mathematically can we simulate such a network that any two random <i>nodes</i> within it can be linked through a <i>path</i> with less than five <i>edges</i>?</P>
 		</div>
 	
 		<div class="content">
-			<div class="textCol"><p>We consider constructing a network in which every distinct pair of nodes is connected by an unique edge. This type of network is known as a <i>complete graph</i>. A complete graph can ensure a shortest path length (=1) between any two nodes, however, such a network doesn't represent a real world social network.<p> 
+			<div class="textCol"><p>We consider constructing a network in which every distinct pair of nodes is connected by a unique edge. This type of network is known as a <i>complete graph</i>. A complete graph can ensure a shortest path length (=1) between any two nodes, however, such a network doesn't represent a real world social network.<p> 
 			<p>Click <input  onclick="completeGraph()" type="button" value="Generate"> to generate a complete graph.</p></div>
 			<div class="svgCol"><svg id="completeGraph"></div>
 		</div>
 
 	
 		<div class="content">
-			<div class="textCol"><p>A scenario that is closer to the real social network is we just know our neighbors and our neighbors know other neighbor. In other words, we are clustered in the network. This can be simulated by having a network in which the nodes are only connected with their nearest two neighbors on each side. This type of network is known as <i>lattice graph</i>. In a lattice, the number of egdes are greatly reduced but the path between any two nodes picked at random could be long.</p>
+			<div class="textCol"><p>A scenario that is closer to the real social network is we just know our neighbors and our neighbors know other neighbor. In other words, we are clustered in the network. This can be simulated by having a network in which the nodes are only connected with their nearest two neighbors on each side. This type of network is known as <i>lattice graph</i>. In a lattice, the number of edges are greatly reduced but the path between any two nodes picked at random could be long.</p>
 			<p>Click <input  onclick="latticeGraph()" type="button" value="Generate"> to generate lattice graph.</p></div>
 			<div class="svgCol"><svg id="latticeGraph"></svg></div>
 		</div>

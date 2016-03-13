@@ -48,7 +48,8 @@
 				<input id="Beta" name="Beta" placeholder="0 < &beta; < 1" type="number">
 				<input onclick="onGenerate()" type="button" value="Generate">
 			</div>
-			<div class="smallWorld"><svg id="smallworld"  width="100%" height="1000"></svg></div>
+			<div class="smallWorld"><svg id="smallworld"  width="100%" height="1000"></svg>
+			</div>
 		</div>
 	</div>
 		
@@ -259,6 +260,15 @@
 	 			node.attr("cx", function(d) { return d.x; })
 	 			.attr("cy", function(d) { return d.y; });
 	 		});
+
+			if(graph.nodes[0].hasOwnProperty("degree"))
+			{
+			d3.select('#'+svgId).append("text")
+			.attr("id", "coefficientText")
+			.attr("x", 10)
+			.attr("y", 40)
+			.text("Clustering Coefficient: " + graph.clusteringCoefficient());
+			}
 	 	}
 
 		function Graph(nodes, links) {
@@ -268,6 +278,17 @@
 			this.pathStart = null;
 			this.pathEnd = null;
 			this.path = [];
+
+			this.clusteringCoefficient = function()
+			{
+				var degreeSum = 0;
+				for (var i = 0; i < this.nodes.length; i++) 
+				{
+					degreeSum += this.nodes[i].degree;
+				};
+
+				return (2 * degreeSum) / (this.nodes.length * this.nodes.length * (this.nodes.length - 1));
+			}
 			
 			this.click = function (nodeCircle, node, svgId)
 			{
@@ -289,6 +310,12 @@
 						d3.select('#'+svgId).selectAll(".link")
 						.filter(function(d){return self.path.indexOf(d) != -1;})
 						.style("stroke", "#FF8C00");
+
+						d3.select('#'+svgId).append("text")
+						.attr("id", "pathText")
+						.attr("x", 10)
+						.attr("y", 20)
+						.text("Path Length: " + this.path.length);
 					}
 				}
 				else
@@ -299,6 +326,7 @@
 					
 					d3.select('#'+svgId).selectAll(".node").style("fill", color(1));
 					d3.select('#'+svgId).selectAll(".link").style("stroke", "#999");
+					d3.select('#pathText').remove();
 				}
 			};
 			
